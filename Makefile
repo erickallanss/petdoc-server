@@ -9,8 +9,11 @@ build:
 	$(MVN) clean package -DskipTests
 
 # Alvo para rodar o Docker Compose
-run:
-	$(DOCKER_COMPOSE) up --build
+up:
+	$(DOCKER_COMPOSE) up
+
+up -build:
+	$(DOCKER_COMPOSE) up
 
 # Alvo para parar os containers do Docker Compose
 stop:

@@ -1,32 +1,33 @@
 package com.petdoc.user;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
+import java.util.ArrayList;
+
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
-public class UService {
+public class UService implements UserDetailsService {
 
-    @Autowired
-    private URepository repository;
+    private final URepository userRepository;
 
-    public List<UUser> findAllUsers() {
-        return repository.findAll();
+    public UService(URepository userRepository) {
+        this.userRepository = userRepository;
     }
 
-    public UUser findUserById(Long id) {
-        return repository.findById(id).orElse(null);
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        UUser user = userRepository.findByEmail(email);
+        if (user == null) {
+            throw new UsernameNotFoundException("User not found with email: " + email);
+        }
+        return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(),
+                new ArrayList<>());
     }
 
-    public UUser createUser(UUser user) {
-        return repository.save(user);
-    }
-
-    public void deleteUser(Long id) {
-        repository.deleteById(id);
-    }
-    public UUser findUserByEmail(String email) {
-        return repository.findByEmail(email);
+    public UUser saveUser(UUser user) {
+        return userRepository.save(user);
     }
 }
