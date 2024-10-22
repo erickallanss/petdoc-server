@@ -13,7 +13,7 @@ up:
 	$(DOCKER_COMPOSE) up
 
 up -build:
-	$(DOCKER_COMPOSE) up
+	$(DOCKER_COMPOSE) up --build
 
 # Alvo para parar os containers do Docker Compose
 stop:

@@ -1,0 +1,2 @@
+# Corrigir AuthenticationManager injection para conseguir liberar as rotas jwt free;
+# Após, fazer testes automatizados de register e login;

@@ -30,4 +30,8 @@ public class UService implements UserDetailsService {
     public UUser saveUser(UUser user) {
         return userRepository.save(user);
     }
+
+    public boolean existsByEmail(String email) {
+        return userRepository.existsByEmail(email);
+    }
 }

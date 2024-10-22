@@ -1,6 +1,8 @@
 package com.petdoc.user;
 
 import io.jsonwebtoken.*;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -12,8 +14,8 @@ import java.util.Date;
 @Component
 public class JwtTokenUtil {
 
-    private final String SECRET_KEY = "your_base64_encoded_secret_key"; 
-
+    @Value("${jwt.secret}")    
+    private String SECRET_KEY; 
     private Key getSigningKey() {
         byte[] keyBytes = Base64.getDecoder().decode(SECRET_KEY);
         return new SecretKeySpec(keyBytes, SignatureAlgorithm.HS256.getJcaName());
@@ -23,7 +25,7 @@ public class JwtTokenUtil {
         return Jwts.builder()
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)) // 10 hours for now
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -51,4 +53,26 @@ public class JwtTokenUtil {
                 .getExpiration()
                 .before(new Date());
     }
+
+    public boolean canTokenBeRefreshed(String token) {
+        return !isTokenExpired(token);
+    }
+
+    public String refreshToken(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
+        return Jwts.builder()
+                .setClaims(claims)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 100)) // 100 hours for now
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
 }
+
+
